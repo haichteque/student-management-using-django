@@ -1,75 +1,87 @@
 import os
-import re
 import json
+from google import genai
 
-# Paths
-DJANGO_APP_PATH = './main_app'  # replace with your app path
-OUTPUT_CYPRESS_PATH = './cypress/e2e/generated_tests'
+# --- Configuration ---
+CODE_DIR = "main_app"   # no recursion
+OUTPUT_DIR = "cypress/e2e"
+BASE_URL = "http://127.0.0.1:8000/"
 
-if not os.path.exists(OUTPUT_CYPRESS_PATH):
-    os.makedirs(OUTPUT_CYPRESS_PATH)
+# Login credentials
+CREDENTIALS = {
+    "admin": {"email": "qasim@admin.com", "password": "admin"},
+    "staff": {"email": "bill@ms.com", "password": "123"},
+    "student": {"email": "qasim@nu.edu.pk", "password": "123"},
+}
 
-# Regex patterns
-view_pattern = re.compile(r'def (\w+)\(request[^\)]*\):')
-template_pattern = re.compile(r'render\(request,\s*[\'"]([\w/_\-]+\.html)[\'"]')
-form_pattern = re.compile(r'(\w+) = (\w+)\(request\.POST or None')
+SYSTEM_PROMPT = f"""
+You are an expert QA engineer. Generate **Cypress E2E test code** for the following Python/Django file.
+Use the base URL: {BASE_URL}
+Use the following login credentials:
 
-def parse_views(file_path):
-    with open(file_path, 'r', encoding='utf-8') as f:
-        content = f.read()
+- Admin: {CREDENTIALS['admin']['email']} / {CREDENTIALS['admin']['password']}
+- Staff: {CREDENTIALS['staff']['email']} / {CREDENTIALS['staff']['password']}
+- Student: {CREDENTIALS['student']['email']} / {CREDENTIALS['student']['password']}
 
-    views = []
-    for view_match in view_pattern.finditer(content):
-        view_name = view_match.group(1)
-        view_start = view_match.end()
-        view_body = content[view_start:]
-        template_match = template_pattern.search(view_body)
-        form_matches = form_pattern.findall(view_body)
+The code must be ready to run in Cypress 12+, using proper `describe`/`it` blocks.
+Automatically detect whether a test is for admin, staff, or student login.
+Output must be only JS code, no extra comments or explanations.
+"""
 
-        template_name = template_match.group(1) if template_match else None
-        forms = [f[1] for f in form_matches]
+# --- Initialize Gemini client ---
+try:
+    client = genai.Client()
+except Exception:
+    print("!!! ERROR: GEMINI_API_KEY not set or client failed to initialize.")
+    exit()
 
-        views.append({
-            'view_name': view_name,
-            'template': template_name,
-            'forms': forms
-        })
-    return views
+# --- Helper: Clean Gemini JS output by removing first and last line ---
+def clean_cypress_code(code: str) -> str:
+    lines = code.strip().splitlines()
+    if len(lines) > 2:  # remove first and last line if present
+        lines = lines[1:-1]
+    return "\n".join(lines)
 
-# Generate Cypress test
-def generate_cypress_test(view):
-    view_name = view['view_name']
-    template = view['template']
-    forms = view['forms']
+# --- Gemini call ---
+def get_cypress_code_from_gemini(file_content: str, filename: str) -> str:
+    prompt = f"{SYSTEM_PROMPT}\n\n--- CODE START ---\n{file_content}\n--- CODE END ---"
+    try:
+        response = client.models.generate_content(
+            model="gemini-2.5-flash",
+            contents=prompt
+        )
+        js_code = response.text.strip()
+        return clean_cypress_code(js_code)
+    except Exception as e:
+        print(f"[ERROR] Gemini failed for {filename}: {e}")
+        return ""
 
-    test_code = f"describe('{view_name}', () => {{\n"
-    test_code += f"  it('Visits the page', () => {{\n"
-    test_code += f"    cy.visit('/{view_name}/')\n"
-    test_code += f"    cy.contains('{view_name.replace('_',' ').title()}')\n"
-    test_code += "  });\n\n"
+# --- Generate Cypress tests ---
+def generate_cypress_tests(code_directory, output_directory):
+    if not os.path.exists(code_directory):
+        print(f"!!! ERROR: Directory '{code_directory}' not found")
+        return
 
-    for form in forms:
-        test_code += f"  it('Fills the {form} form', () => {{\n"
-        test_code += f"    cy.visit('/{view_name}/')\n"
-        # We cannot parse exact form fields, so placeholder:
-        test_code += "    // TODO: Fill the form fields\n"
-        test_code += "    cy.get('form').submit()\n"
-        test_code += "  });\n\n"
+    os.makedirs(output_directory, exist_ok=True)
 
-    test_code += "});\n"
-    return test_code
+    for file in os.listdir(code_directory):
+        if file.endswith(".py"):
+            filepath = os.path.join(code_directory, file)
+            try:
+                with open(filepath, 'r', encoding='utf-8') as f:
+                    content = f.read()
+            except Exception as e:
+                print(f"!!! Could not read {filepath}: {e}")
+                continue
 
-# Walk through app folder and parse views
-for root, dirs, files in os.walk(DJANGO_APP_PATH):
-    for file in files:
-        if file.endswith('.py') and 'views' in file:
-            file_path = os.path.join(root, file)
-            views = parse_views(file_path)
-            for view in views:
-                test_code = generate_cypress_test(view)
-                output_file = os.path.join(OUTPUT_CYPRESS_PATH, f"{view['view_name']}.spec.js")
-                with open(output_file, 'w', encoding='utf-8') as f:
-                    f.write(test_code)
-                print(f"Generated test for {view['view_name']} -> {output_file}")
+            js_code = get_cypress_code_from_gemini(content, file)
+            if js_code:
+                out_file = os.path.join(output_directory, f"{os.path.splitext(file)[0]}.cy.js")
+                with open(out_file, "w", encoding="utf-8") as f:
+                    f.write(js_code)
+                print(f"✅ Saved Cypress test for {file} -> {out_file}")
+            else:
+                print(f"⚠️ No code generated for {file}")
 
-print("Cypress test generation completed!")
+if __name__ == "__main__":
+    generate_cypress_tests(CODE_DIR, OUTPUT_DIR)
