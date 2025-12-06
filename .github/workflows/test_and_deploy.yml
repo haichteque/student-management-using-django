@@ -3,7 +3,6 @@ name: Test and Deploy
 on:
   push:
     branches:
-      - main
       - new_workflow_branch
   pull_request:
 
