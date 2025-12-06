@@ -23,6 +23,8 @@
   "homepage": "https://github.com/haichteque/student-management-using-django#readme",
   "devDependencies": {
     "cypress": "^15.7.1",
-    "cypress-file-upload": "^5.0.8"
+    "cypress-file-upload": "^5.0.8",
+    "mocha-json-reporter": "^1.0.0-1",
+    "mocha-junit-reporter": "^2.2.1"
   }
 }
