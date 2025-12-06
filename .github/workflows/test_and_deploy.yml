@@ -43,8 +43,6 @@ jobs:
           npm install
           npm install cypress --save-dev
           npm install cypress-file-upload --save-dev
-          npm install cypress-image-snapshot --save-dev
-          npx cypress install
 
       - name: Make manage.py executable
         run: chmod +x manage.py
