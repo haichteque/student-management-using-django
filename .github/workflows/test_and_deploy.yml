@@ -46,6 +46,10 @@ jobs:
       - name: Download Cypress binary
         run: npx cypress install
 
+      - name: Ensure SQLite DB
+        run: |
+          ls -la db.sqlite3 || touch db.sqlite
+
       - name: Run Django migrations
         run: python manage.py migrate
 
