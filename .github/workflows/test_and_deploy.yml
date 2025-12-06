@@ -1,4 +1,4 @@
-name: Test and Run UI Documenter
+name: Test and Deploy
 
 on:
   push:
@@ -16,8 +16,6 @@ jobs:
       TEST_SUPERUSER_EMAIL: ijtaba@ijtaba.com
       TEST_SUPERUSER_PASSWORD: ijtaba
       DISABLE_CAPTCHA: True
-      # Placeholder for Gemini API key (set as GitHub secret)
-      GEMINI_API_KEY: AIzaSyALUVHO6Cww7e8TmrS9elxx6UWGBDmFpAk
 
     steps:
       - name: Checkout repository
@@ -44,12 +42,12 @@ jobs:
           npm install --save-dev cypress-file-upload
 
       - name: Run tester
-        run: python tester_and_reporter.py
+        run: pytest tests/
 
       - name: Start Django server in background
         run: |
           nohup python manage.py runserver 0.0.0.0:8000 &
           sleep 15  # wait for server to be ready
 
-      - name: Run UI tester documenter
-        run: python ui_tester_documenter.py
+      - name: UI Test
+        run: npx cypress run
