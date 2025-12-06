@@ -15,8 +15,9 @@ jobs:
       MY_SECRET_KEY: django-insecure-dev-key-12345-change-this-in-production
       TEST_SUPERUSER_EMAIL: ijtaba@ijtaba.com
       TEST_SUPERUSER_PASSWORD: ijtaba
-      DISABLE_CAPTCHA: True
-
+      DISABLE_CAPTCHA: 'True'
+      # Database settings for CI (using sqlite default)
+      
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -30,6 +31,36 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-          
-      - name: Run tester
-        run: python tester_and_reporter.py
+          pip install dj-database-url python-dotenv whitenoise # Ensure prod deps are there if needed, though requirements.txt should have them
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+
+      - name: Install Node dependencies
+        run: |
+          npm install
+          npm install cypress-image-snapshot --save-dev
+
+      - name: Apply Migrations
+        run: |
+          python manage.py migrate
+
+      - name: Create Superuser (Ijtaba)
+        run: |
+          python manage.py create_test_superuser
+
+      - name: Run Server
+        run: |
+          python manage.py runserver &
+          # Wait for server to start
+          for i in {1..30}; do
+            curl -s http://127.0.0.1:8000 > /dev/null && break
+            echo "Waiting for server..."
+            sleep 1
+          done
+
+      - name: Run Cypress Tests
+        run: |
+          npx cypress run
