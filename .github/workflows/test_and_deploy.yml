@@ -101,6 +101,7 @@ jobs:
 
 
   deploy:
+    needs: test-and-run
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
     steps:
