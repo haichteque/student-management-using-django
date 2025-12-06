@@ -35,20 +35,6 @@ jobs:
 
       - name: Set up Node.js
         uses: actions/setup-node@v3
-        with:
-          node-version: '20'
-
-      - name: Install Node dependencies
-        run: |
-          npm install
-          npm install cypress --save-dev
-          npm install cypress-file-upload --save-dev
-
-      - name: Make manage.py executable
-        run: chmod +x manage.py
-
-      - name: Apply Migrations
-        run: |
           python manage.py migrate
 
       - name: Create Superuser (Ijtaba)
