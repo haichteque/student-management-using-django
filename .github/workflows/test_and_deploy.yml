@@ -46,6 +46,11 @@ jobs:
       - name: Download Cypress binary
         run: npx cypress install
 
+      - name: Reset database
+        run: |
+          rm -f db.sqlite3
+          python manage.py migrate
+
       - name: Run Django migrations and create superuser
         run: |
           python manage.py migrate
