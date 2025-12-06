@@ -40,6 +40,9 @@ jobs:
         run: |
           npm install cypress --save-dev
           npm install --save-dev cypress-file-upload
+
+      - name: Download Cypress binary
+        run: npx cypress install
       
       - name: Fix Cypress permissions
         run: chmod +x node_modules/.bin/cypress
