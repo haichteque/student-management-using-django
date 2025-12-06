@@ -12,8 +12,8 @@ jobs:
 
     env:
       MY_SECRET_KEY: django-insecure-dev-key-12345-change-this-in-production
-      TEST_SUPERUSER_EMAIL: admin@admin.com
-      TEST_SUPERUSER_PASSWORD: admin
+      TEST_SUPERUSER_EMAIL: ijtaba@ijtaba.com
+      TEST_SUPERUSER_PASSWORD: ijtaba
       DISABLE_CAPTCHA: True
 
     steps:

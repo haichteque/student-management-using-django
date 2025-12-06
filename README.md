@@ -184,8 +184,6 @@ Command for Linux:
 $  python3 manage.py createsuperuser
 ```
 
-
-
 Then Add Email and Password
 
 **or Use Default Credentials**

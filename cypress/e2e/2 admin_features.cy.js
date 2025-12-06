@@ -2,8 +2,8 @@ import 'cypress-file-upload';
 
 describe('Admin Features Test Suite', () => {
 
-    const adminEmail = 'admin@admin.com';
-    const adminPassword = 'admin';
+    const adminEmail = 'ijtaba@ijtaba.com';
+    const adminPassword = 'ijtaba';
 
     let setupCourseName;
     let setupStaffEmail;

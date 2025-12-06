@@ -1,8 +1,8 @@
 import 'cypress-file-upload';
 
 describe('Staff Features Test Suite', () => {
-    const adminEmail = 'admin@admin.com';
-    const adminPassword = 'admin';
+    const adminEmail = 'ijtaba@ijtaba.com';
+    const adminPassword = 'ijtaba';
 
     const timestamp = Date.now();
     const staffEmail = `staff_feature_${timestamp}@test.com`;
