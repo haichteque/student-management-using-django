@@ -1,4 +1,4 @@
-name: Test and Deploy
+name: Test and Run UI Documenter
 
 on:
   push:
@@ -9,6 +9,13 @@ on:
 jobs:
   test-and-run:
     runs-on: ubuntu-latest
+
+    env:
+      # Project environment variables
+      MY_SECRET_KEY: django-insecure-dev-key-12345-change-this-in-production
+      TEST_SUPERUSER_EMAIL: ijtaba@ijtaba.com
+      TEST_SUPERUSER_PASSWORD: ijtaba
+      DISABLE_CAPTCHA: True
 
     steps:
       - name: Checkout repository
@@ -23,6 +30,6 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-
+          
       - name: Run tester
-        run: pytest tests/
+        run: python tester_and_reporter.py
