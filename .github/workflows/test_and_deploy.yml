@@ -52,6 +52,7 @@ jobs:
               -p 8000:8000 \
               --env MY_SECRET_KEY='${{ secrets.MY_SECRET_KEY }}' \
               --env DEBUG='False' \
+              --env DISABLE_CAPTCHA='True' \
               -v student_db_data:/app/db \
               --name student-app \
               $IMAGE_TAG
