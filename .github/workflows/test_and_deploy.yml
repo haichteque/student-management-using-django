@@ -51,6 +51,10 @@ jobs:
           npm install cypress --save-dev
           npm install cypress-file-upload --save-dev
 
+      # 👇 FIX — allow execution
+      - name: Fix Cypress Permission
+        run: chmod +x node_modules/.bin/cypress
+
       - name: Install Cypress Binary
         run: npx cypress install
 
