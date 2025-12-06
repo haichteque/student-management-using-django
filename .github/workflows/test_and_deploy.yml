@@ -76,6 +76,10 @@ jobs:
 
       - name: Run Cypress Tests
         run: |
-          //permission denied for this
-          chmod +x cypress
+          # Permission denied fix
+          chmod +x node_modules/.bin/cypress
           npx cypress run
+
+      - name: Stop Server
+        run: |
+          pkill -f runserver
