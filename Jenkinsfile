@@ -3,7 +3,6 @@ pipeline {
 
     environment {
         VENV_DIR = "venv"
-        GEMINI_API_KEY = credentials('AIzaSyALUVHO6Cww7e8TmrS9elxx6UWGBDmFpAk')
         SECRET_KEY = credentials('SECRET_KEY_ID')
         DATABASE_URL = credentials('DATABASE_URL_ID')
     }
