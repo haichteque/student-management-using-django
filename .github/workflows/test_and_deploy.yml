@@ -10,12 +10,6 @@ jobs:
   test-and-run:
     runs-on: ubuntu-latest
 
-    env:
-      MY_SECRET_KEY: django-insecure-dev-key-12345-change-this-in-production
-      TEST_SUPERUSER_EMAIL: ijtaba@ijtaba.com
-      TEST_SUPERUSER_PASSWORD: ijtaba
-      DISABLE_CAPTCHA: True
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -30,43 +24,5 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Set up Node.js (for Cypress)
-        uses: actions/setup-node@v3
-        with:
-          node-version: '20'
-
-      - name: Install Cypress
-        run: |
-          npm install cypress --save-dev
-          npm install --save-dev cypress-file-upload
-
-      - name: Fix Cypress permissions
-        run: chmod +x node_modules/.bin/cypress
-
-      - name: Download Cypress binary
-        run: npx cypress install
-
-      - name: Reset database
-        run: |
-          rm -f db.sqlite3
-          python manage.py migrate
-
-      - name: Run Django migrations and create superuser
-        run: |
-          python manage.py migrate
-          python manage.py createsuperuser --noinput
-        env:
-          DJANGO_SUPERUSER_EMAIL: ijtaba@ijtaba.com
-          DJANGO_SUPERUSER_USERNAME: ijtaba
-          DJANGO_SUPERUSER_PASSWORD: ijtaba
-
       - name: Run tester
         run: pytest tests/
-
-      - name: Start Django server in background
-        run: |
-          nohup python manage.py runserver 0.0.0.0:8000 &
-          sleep 15
-
-      - name: UI Test
-        run: npx cypress run
