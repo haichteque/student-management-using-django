@@ -50,4 +50,4 @@ jobs:
           sleep 15  # wait for server to be ready
 
       - name: UI Test
-        run: npx cypress run
+        run: sudo npx cypress run
