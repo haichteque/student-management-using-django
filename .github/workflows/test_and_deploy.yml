@@ -76,4 +76,6 @@ jobs:
 
       - name: Run Cypress Tests
         run: |
+          //permission denied for this
+          chmod +x cypress
           npx cypress run
