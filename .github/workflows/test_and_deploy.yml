@@ -90,3 +90,52 @@ jobs:
       - name: Stop Server
         if: always()
         run: pkill -f runserver
+
+  deploy:
+    needs: test-and-run
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Log in to Oracle Cloud Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ${{ secrets.OCI_REGISTRY }}
+          username: ${{ secrets.OCI_USERNAME }}
+          password: ${{ secrets.OCI_AUTH_TOKEN }}
+
+      - name: Build and Push Docker Image
+        run: |
+          IMAGE_TAG=${{ secrets.OCI_REGISTRY }}/${{ secrets.OCI_NAMESPACE }}/student-management-system:latest
+          docker build -t $IMAGE_TAG .
+          docker push $IMAGE_TAG
+
+      - name: Deploy to Oracle Cloud VM
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.VM_SSH_HOST }}
+          username: ${{ secrets.VM_SSH_USER }}
+          key: ${{ secrets.VM_SSH_KEY }}
+          script: |
+            # Login to OCIR on the VM
+            echo "${{ secrets.OCI_AUTH_TOKEN }}" | docker login ${{ secrets.OCI_REGISTRY }} -u ${{ secrets.OCI_USERNAME }} --password-stdin
+            
+            # Pull the latest image
+            IMAGE_TAG=${{ secrets.OCI_REGISTRY }}/${{ secrets.OCI_NAMESPACE }}/student-management-system:latest
+            docker pull $IMAGE_TAG
+            
+            # Stop and remove existing container
+            docker stop student-app || true
+            docker rm student-app || true
+            
+            # Run new container
+            # Note: Ensure .env file exists on VM or pass env vars here
+            docker run -d \
+              -p 8000:8000 \
+              --env MY_SECRET_KEY='${{ secrets.MY_SECRET_KEY }}' \
+              --env DEBUG='False' \
+              -v student_db_data:/app/db \
+              --name student-app \
+              $IMAGE_TAG
