@@ -14,7 +14,6 @@ jobs:
       MY_SECRET_KEY: django-insecure-dev-key-12345-change-this-in-production
       TEST_SUPERUSER_EMAIL: ijtaba@ijtaba.com
       TEST_SUPERUSER_PASSWORD: ijtaba
-      DATABASE_URL: sqlite:///./db.sqlite3
       DISABLE_CAPTCHA: True
 
     steps:
@@ -47,12 +46,14 @@ jobs:
       - name: Download Cypress binary
         run: npx cypress install
 
-      - name: Ensure SQLite DB
+      - name: Run Django migrations and create superuser
         run: |
-          ls -la db.sqlite3 || touch db.sqlite
-
-      - name: Run Django migrations
-        run: python manage.py migrate
+          python manage.py migrate
+          python manage.py createsuperuser --noinput
+        env:
+          DJANGO_SUPERUSER_EMAIL: ijtaba@ijtaba.com
+          DJANGO_SUPERUSER_USERNAME: ijtaba
+          DJANGO_SUPERUSER_PASSWORD: ijtaba
 
       - name: Run tester
         run: pytest tests/
