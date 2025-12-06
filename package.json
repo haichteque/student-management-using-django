@@ -1,0 +1,28 @@
+{
+  "name": "student-management-using-django",
+  "version": "1.0.0",
+  "description": "This is a Simple Student Management System Developed While Learning Django.\r Feel free to make changes based on your requirements.",
+  "main": "index.js",
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/haichteque/student-management-using-django.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/haichteque/student-management-using-django/issues"
+  },
+  "homepage": "https://github.com/haichteque/student-management-using-django#readme",
+  "devDependencies": {
+    "cypress": "^15.7.1",
+    "cypress-file-upload": "^5.0.8"
+  }
+}

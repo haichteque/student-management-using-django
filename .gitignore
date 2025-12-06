@@ -6,3 +6,5 @@ main_app/migrations/*
 !main_app/migrations/0001_initial.py
 db.sqlite3
 
+# Environment variables (contains sensitive data)
+.env

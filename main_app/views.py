@@ -1,5 +1,6 @@
 import json
 import requests
+import os
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.http import HttpResponse, JsonResponse
@@ -20,7 +21,11 @@ def login_page(request):
             return redirect(reverse("staff_home"))
         else:
             return redirect(reverse("student_home"))
-    return render(request, 'main_app/login.html')
+    
+    # Check if CAPTCHA should be disabled in the frontend
+    disable_captcha = os.environ.get('DISABLE_CAPTCHA', 'False') == 'True'
+    context = {'disable_captcha': disable_captcha}
+    return render(request, 'main_app/login.html', context)
 
 
 def doLogin(request, **kwargs):
@@ -28,23 +33,28 @@ def doLogin(request, **kwargs):
         return HttpResponse("<h4>Denied</h4>")
     else:
         #Google recaptcha
-        captcha_token = request.POST.get('g-recaptcha-response')
-        captcha_url = "https://www.google.com/recaptcha/api/siteverify"
-        captcha_key = "6LfswtgZAAAAABX9gbLqe-d97qE2g1JP8oUYritJ"
-        data = {
-            'secret': captcha_key,
-            'response': captcha_token
-        }
-        # Make request
-        try:
-            captcha_server = requests.post(url=captcha_url, data=data)
-            response = json.loads(captcha_server.text)
-            if response['success'] == False:
-                messages.error(request, 'Invalid Captcha. Try Again')
+        # Check if CAPTCHA should be bypassed for testing
+        disable_captcha = os.environ.get('DISABLE_CAPTCHA', 'False') == 'True'
+        print(f"DEBUG: disable_captcha={disable_captcha}, env={os.environ.get('DISABLE_CAPTCHA')}")
+        
+        if not disable_captcha:
+            captcha_token = request.POST.get('g-recaptcha-response')
+            captcha_url = "https://www.google.com/recaptcha/api/siteverify"
+            captcha_key = "6LfswtgZAAAAABX9gbLqe-d97qE2g1JP8oUYritJ"
+            data = {
+                'secret': captcha_key,
+                'response': captcha_token
+            }
+            # Make request
+            try:
+                captcha_server = requests.post(url=captcha_url, data=data)
+                response = json.loads(captcha_server.text)
+                if response['success'] == False:
+                    messages.error(request, 'Invalid Captcha. Try Again')
+                    return redirect('/')
+            except:
+                messages.error(request, 'Captcha could not be verified. Try Again')
                 return redirect('/')
-        except:
-            messages.error(request, 'Captcha could not be verified. Try Again')
-            return redirect('/')
         
         #Authenticate
         user = EmailBackend.authenticate(request, username=request.POST.get('email'), password=request.POST.get('password'))
