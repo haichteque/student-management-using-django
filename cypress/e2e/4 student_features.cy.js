@@ -1,8 +1,8 @@
 import 'cypress-file-upload';
 
 describe('Student Features Test Suite', () => {
-    const adminEmail = 'ijtaba@ijtaba.com';
-    const adminPassword = 'ijtaba';
+    const adminEmail = 'admin@admin.com';
+    const adminPassword = 'admin';
 
     // --- Global Test Data ---
     const timestamp = Date.now();

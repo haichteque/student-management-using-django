@@ -12,8 +12,8 @@ jobs:
 
     env:
       MY_SECRET_KEY: django-insecure-dev-key-12345-change-this-in-production
-      TEST_SUPERUSER_EMAIL: ijtaba@ijtaba.com
-      TEST_SUPERUSER_PASSWORD: ijtaba
+      TEST_SUPERUSER_EMAIL: admin@admin.com
+      TEST_SUPERUSER_PASSWORD: admin
       DISABLE_CAPTCHA: True
 
     steps:
@@ -45,21 +45,6 @@ jobs:
 
       - name: Run Django migrations
         run: python manage.py migrate
-
-      - name: Create Django superuser (non-interactive)
-        run: |
-          python manage.py createsuperuser \
-            --noinput \
-            --email "$TEST_SUPERUSER_EMAIL" \
-            --username "$TEST_SUPERUSER_EMAIL"
-
-          echo "
-from django.contrib.auth import get_user_model
-User = get_user_model()
-u, created = User.objects.get_or_create(email='$TEST_SUPERUSER_EMAIL')
-u.set_password('$TEST_SUPERUSER_PASSWORD')
-u.save()
-" | python manage.py shell
 
       - name: Run tester
         run: pytest tests/

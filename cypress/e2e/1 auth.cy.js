@@ -1,5 +1,5 @@
 describe('Authentication Module Test Suite', () => {
-    const validEmail = 'ijtaba@ijtaba.com';
+    const validEmail = 'admin@admin.com';
     
     beforeEach(() => {
         cy.visit('/');
@@ -10,7 +10,7 @@ describe('Authentication Module Test Suite', () => {
     // -------------------------------
     it('TC-01: Verify successful login with valid superuser credentials', () => {
         cy.get('input[name="email"]').should('be.visible').type(validEmail);
-        cy.get('input[name="password"]').should('be.visible').type('ijtaba');
+        cy.get('input[name="password"]').should('be.visible').type('admin');
         cy.get('button[type="submit"]').click();
 
         cy.url({ timeout: 10000 }).should('include', '/admin/');
@@ -64,7 +64,7 @@ describe('Authentication Module Test Suite', () => {
     // Logout
     // -------------------------------
     it('TC-05: Verify successful logout functionality', () => {
-        cy.login(validEmail, 'ijtaba');
+        cy.login(validEmail, 'admin');
         cy.contains(/Logout/i, { timeout: 5000 }).click({ force: true });
         cy.url({ timeout: 10000 }).should('include', '/');
         cy.get('input[name="email"]').should('be.visible');
@@ -72,7 +72,7 @@ describe('Authentication Module Test Suite', () => {
     });
 
     it('TC-05-A: Verify Security - Back Button after Logout', () => {
-        cy.login(validEmail, 'ijtaba');
+        cy.login(validEmail, 'admin');
         cy.contains(/Logout/i).click({ force: true });
         cy.go('back');
         cy.url().should('not.include', '/admin/');
