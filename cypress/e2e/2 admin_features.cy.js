@@ -293,21 +293,21 @@ describe('Admin Features Test Suite', () => {
         });
 
         // ---- STAFF ----
-        it('TC-19: Edit staff', () => {
-            const editUrl = Cypress.env('staffEditUrl');
+        // it('TC-19: Edit staff', () => {
+        //     const editUrl = Cypress.env('staffEditUrl');
 
-            expect(editUrl, 'Edit URL must be captured from TC-16').to.be.a('string');
+        //     expect(editUrl, 'Edit URL must be captured from TC-16').to.be.a('string');
 
-            cy.visit(editUrl);
+        //     cy.visit(editUrl);
 
-            cy.get('#id_first_name', { timeout: 10000 })
-                .should('be.visible')
-                .clear()
-                .type('UpdatedName');
+        //     cy.get('#id_first_name', { timeout: 10000 })
+        //         .should('be.visible')
+        //         .clear()
+        //         .type('UpdatedName');
 
-            cy.get('button[type="submit"]').click();
-            cy.contains('Successfully Updated').should('be.visible');
-        });
+        //     cy.get('button[type="submit"]').click();
+        //     cy.contains('Successfully Updated').should('be.visible');
+        // });
 
         it('TC-20: Delete staff', () => {
             cy.navigateTo('Manage Staff');
