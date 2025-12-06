@@ -12,12 +12,11 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      # Project environment variables
       MY_SECRET_KEY: django-insecure-dev-key-12345-change-this-in-production
       TEST_SUPERUSER_EMAIL: ijtaba@ijtaba.com
       TEST_SUPERUSER_PASSWORD: ijtaba
       DISABLE_CAPTCHA: 'True'
-      
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -37,6 +36,14 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: '20'
+          cache: 'npm'
+
+      - name: Cache Cypress Binary
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/Cypress
+          key: cypress-cache-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+          restore-keys: cypress-cache-
 
       - name: Install Node dependencies
         run: |
@@ -44,42 +51,39 @@ jobs:
           npm install cypress --save-dev
           npm install cypress-file-upload --save-dev
 
+      - name: Install Cypress Binary
+        run: npx cypress install
+
       - name: Make manage.py executable
         run: chmod +x manage.py
 
       - name: Apply Migrations
-        run: |
-          python manage.py migrate
+        run: python manage.py migrate
 
       - name: Create Superuser (Ijtaba)
-        run: |
-          python manage.py create_test_superuser
+        run: python manage.py create_test_superuser
 
-      - name: Run Server
+      - name: Run Django Server in background
         run: |
           nohup python manage.py runserver 0.0.0.0:8000 > server.log 2>&1 &
           echo "Waiting for server to start..."
           for i in {1..30}; do
             if curl -s http://127.0.0.1:8000 > /dev/null; then
-              echo "Server is up!"
+              echo "Server is running!"
               break
             fi
-            echo "Waiting..."
+            echo "Starting..."
             sleep 1
           done
-          # Check if server is actually running if loop finishes
           if ! curl -s http://127.0.0.1:8000 > /dev/null; then
-            echo "Server failed to start. Log output:"
+            echo "Server failed. Log:"
             cat server.log
             exit 1
           fi
 
       - name: Run Cypress Tests
-        run: |
-          # Permission denied fix
-          chmod +x node_modules/.bin/cypress
-          npx cypress run
+        run: npx cypress run
 
       - name: Stop Server
-        run: |
-          pkill -f runserver
+        if: always()
+        run: pkill -f runserver
