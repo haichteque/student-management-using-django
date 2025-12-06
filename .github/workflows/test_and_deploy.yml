@@ -3,6 +3,7 @@ name: Test and Deploy
 on:
   push:
     branches:
+      - main
       - new_workflow_branch
   pull_request:
 
@@ -16,7 +17,6 @@ jobs:
       TEST_SUPERUSER_EMAIL: ijtaba@ijtaba.com
       TEST_SUPERUSER_PASSWORD: ijtaba
       DISABLE_CAPTCHA: 'True'
-      # Database settings for CI (using sqlite default)
       
     steps:
       - name: Checkout repository
@@ -31,7 +31,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
-          pip install dj-database-url python-dotenv whitenoise # Ensure prod deps are there if needed, though requirements.txt should have them
+          pip install dj-database-url python-dotenv whitenoise
 
       - name: Set up Node.js
         uses: actions/setup-node@v3
@@ -44,6 +44,9 @@ jobs:
           npm install cypress --save-dev
           npm install cypress-file-upload --save-dev
 
+      - name: Make manage.py executable
+        run: chmod +x manage.py
+
       - name: Apply Migrations
         run: |
           python manage.py migrate
@@ -54,13 +57,22 @@ jobs:
 
       - name: Run Server
         run: |
-          python manage.py runserver &
-          # Wait for server to start
+          nohup python manage.py runserver 0.0.0.0:8000 > server.log 2>&1 &
+          echo "Waiting for server to start..."
           for i in {1..30}; do
-            curl -s http://127.0.0.1:8000 > /dev/null && break
-            echo "Waiting for server..."
+            if curl -s http://127.0.0.1:8000 > /dev/null; then
+              echo "Server is up!"
+              break
+            fi
+            echo "Waiting..."
             sleep 1
           done
+          # Check if server is actually running if loop finishes
+          if ! curl -s http://127.0.0.1:8000 > /dev/null; then
+            echo "Server failed to start. Log output:"
+            cat server.log
+            exit 1
+          fi
 
       - name: Run Cypress Tests
         run: |
