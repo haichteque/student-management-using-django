@@ -147,6 +147,7 @@ jobs:
               --env MY_SECRET_KEY='${{ secrets.MY_SECRET_KEY }}' \
               --env DEBUG='True' \
               --env DISABLE_CAPTCHA='True' \
+              --env SENTRY_DSN='${{ secrets.SENTRY_DSN }}' \
               -v student_db_data_staging:/app/db \
               --name student-app-staging \
               $IMAGE_TAG
@@ -197,6 +198,7 @@ jobs:
               --env MY_SECRET_KEY='${{ secrets.MY_SECRET_KEY }}' \
               --env DEBUG='False' \
               --env DISABLE_CAPTCHA='True' \
+              --env SENTRY_DSN='${{ secrets.SENTRY_DSN }}' \
               -v student_db_data:/app/db \
               --name student-app \
               $IMAGE_TAG
