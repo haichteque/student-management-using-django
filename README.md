@@ -48,14 +48,14 @@ https://smswithdjango.herokuapp.com/
 <img src="ss/4.png"/>
 <img src="ss/5.png"/>
 
-| Admin| Staff| Student |
-|------|-------|---------|
-|<img src="ss/admin5.png" width="400">|<img src="ss/staff1.png" width="400">|<img src="ss/student1.png" width="400">|
-|<img src="ss/admin2.png" width="400">|<img src="ss/staff2.png" width="400">|<img src="ss/student2.png" width="400">|
-|<img src="ss/admin3.png" width="400">|<img src="ss/staff3.png" width="400">|<img src="ss/student3.png" width="400">|
-|<img src="ss/admin4.png" width="400">|<img src="ss/staff4.png" width="400">|<img src="ss/student4.png" width="400">|
-|<img src="ss/admin1.png" width="400">|<img src="ss/staff5.png" width="400">|<img src="ss/student5.png" width="400">|
-|<img src="ss/admin6.png" width="400">|<img src="ss/staff6.png" width="400">|<img src="ss/student6.png" width="400">|
+| Admin                                 | Staff                                 | Student                                 |
+| ------------------------------------- | ------------------------------------- | --------------------------------------- |
+| <img src="ss/admin5.png" width="400"> | <img src="ss/staff1.png" width="400"> | <img src="ss/student1.png" width="400"> |
+| <img src="ss/admin2.png" width="400"> | <img src="ss/staff2.png" width="400"> | <img src="ss/student2.png" width="400"> |
+| <img src="ss/admin3.png" width="400"> | <img src="ss/staff3.png" width="400"> | <img src="ss/student3.png" width="400"> |
+| <img src="ss/admin4.png" width="400"> | <img src="ss/staff4.png" width="400"> | <img src="ss/student4.png" width="400"> |
+| <img src="ss/admin1.png" width="400"> | <img src="ss/staff5.png" width="400"> | <img src="ss/student5.png" width="400"> |
+| <img src="ss/admin6.png" width="400"> | <img src="ss/staff6.png" width="400"> | <img src="ss/student6.png" width="400"> |
 
 
 
@@ -267,3 +267,5 @@ Password: student
 - https://support.google.com/mail/thread/38519529?hl=en
 - https://stackoverflow.com/questions/46155/how-to-validate-an-email-address-in-javascript
 - https://stackoverflow.com/questions/3429084/why-do-i-get-an-object-is-not-iterable-error
+
+test
