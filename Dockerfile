@@ -32,4 +32,5 @@ RUN SECRET_KEY=dummy python manage.py collectstatic --noinput
 EXPOSE 8000
 
 # Run gunicorn
-CMD ["gunicorn", "student_management_system.wsgi:application", "--bind", "0.0.0.0:8000"]
+# Run gunicorn with New Relic agent
+CMD ["newrelic-admin", "run-program", "gunicorn", "student_management_system.wsgi:application", "--bind", "0.0.0.0:8000"]

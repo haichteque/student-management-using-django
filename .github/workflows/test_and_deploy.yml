@@ -147,7 +147,8 @@ jobs:
               --env MY_SECRET_KEY='${{ secrets.MY_SECRET_KEY }}' \
               --env DEBUG='True' \
               --env DISABLE_CAPTCHA='True' \
-              --env SENTRY_DSN='${{ secrets.SENTRY_DSN }}' \
+              --env NEW_RELIC_LICENSE_KEY='${{ secrets.NEW_RELIC_LICENSE_KEY }}' \
+              --env NEW_RELIC_APP_NAME='Student Management System (Staging)' \
               -v student_db_data_staging:/app/db \
               --name student-app-staging \
               $IMAGE_TAG
@@ -198,7 +199,8 @@ jobs:
               --env MY_SECRET_KEY='${{ secrets.MY_SECRET_KEY }}' \
               --env DEBUG='False' \
               --env DISABLE_CAPTCHA='True' \
-              --env SENTRY_DSN='${{ secrets.SENTRY_DSN }}' \
+              --env NEW_RELIC_LICENSE_KEY='${{ secrets.NEW_RELIC_LICENSE_KEY }}' \
+              --env NEW_RELIC_APP_NAME='Student Management System (Production)' \
               -v student_db_data:/app/db \
               --name student-app \
               $IMAGE_TAG
