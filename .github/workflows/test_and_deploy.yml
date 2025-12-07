@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - staging
   pull_request:
   workflow_dispatch:
 
@@ -100,10 +101,11 @@ jobs:
 
 
 
-  deploy:
+  deploy-staging:
     needs: test-and-run
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/staging'
+    environment: staging
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -115,13 +117,63 @@ jobs:
           username: ${{ secrets.OCI_USERNAME }}
           password: ${{ secrets.OCI_AUTH_TOKEN }}
 
-      - name: Build and Push Docker Image
+      - name: Build and Push Docker Image (Staging)
+        run: |
+          IMAGE_TAG=${{ secrets.OCI_REGISTRY }}/${{ secrets.OCI_NAMESPACE }}/student-management-system:staging
+          docker build -t $IMAGE_TAG .
+          docker push $IMAGE_TAG
+
+      - name: Deploy to Oracle Cloud VM (Staging)
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.VM_SSH_HOST }}
+          username: ${{ secrets.VM_SSH_USER }}
+          key: ${{ secrets.VM_SSH_KEY }}
+          script: |
+            # Login to OCIR on the VM
+            echo "${{ secrets.OCI_AUTH_TOKEN }}" | docker login ${{ secrets.OCI_REGISTRY }} -u ${{ secrets.OCI_USERNAME }} --password-stdin
+            
+            # Pull the staging image
+            IMAGE_TAG=${{ secrets.OCI_REGISTRY }}/${{ secrets.OCI_NAMESPACE }}/student-management-system:staging
+            docker pull $IMAGE_TAG
+            
+            # Stop and remove existing staging container
+            docker stop student-app-staging || true
+            docker rm student-app-staging || true
+            
+            # Run new staging container on port 8001
+            docker run -d \
+              -p 8001:8000 \
+              --env MY_SECRET_KEY='${{ secrets.MY_SECRET_KEY }}' \
+              --env DEBUG='True' \
+              --env DISABLE_CAPTCHA='True' \
+              -v student_db_data_staging:/app/db \
+              --name student-app-staging \
+              $IMAGE_TAG
+
+  deploy-production:
+    needs: test-and-run
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    environment: production
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Log in to Oracle Cloud Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ${{ secrets.OCI_REGISTRY }}
+          username: ${{ secrets.OCI_USERNAME }}
+          password: ${{ secrets.OCI_AUTH_TOKEN }}
+
+      - name: Build and Push Docker Image (Production)
         run: |
           IMAGE_TAG=${{ secrets.OCI_REGISTRY }}/${{ secrets.OCI_NAMESPACE }}/student-management-system:latest
           docker build -t $IMAGE_TAG .
           docker push $IMAGE_TAG
 
-      - name: Deploy to Oracle Cloud VM
+      - name: Deploy to Oracle Cloud VM (Production)
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.VM_SSH_HOST }}
@@ -135,12 +187,11 @@ jobs:
             IMAGE_TAG=${{ secrets.OCI_REGISTRY }}/${{ secrets.OCI_NAMESPACE }}/student-management-system:latest
             docker pull $IMAGE_TAG
             
-            # Stop and remove existing container
+            # Stop and remove existing production container
             docker stop student-app || true
             docker rm student-app || true
             
-            # Run new container
-            # Note: Ensure .env file exists on VM or pass env vars here
+            # Run new production container on port 8000
             docker run -d \
               -p 8000:8000 \
               --env MY_SECRET_KEY='${{ secrets.MY_SECRET_KEY }}' \
