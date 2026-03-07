@@ -47,7 +47,7 @@ The core application retains all the excellent features developed by the origina
 - Apply for Leave and Send Feedback to the HOD.
 
 ---
-🙏 ### Credits & Acknowledgements
+## 🙏 Credits & Acknowledgements
 Original Source Code & Application Design: Owonubi Job Sunday (jobic10)
 
 Original Repository
